@@ -22,18 +22,19 @@ library(rvest)
 We load each file in a similar way, but they differ in how the data is structured. The HTML file is read in multiple lines and includes tags, such as "head" and "body", similar to how content is organized on a webpage. The XML file reads more like structured data in a single line, similar to a CSV file, though it uses tags to define elements. Lastly, the JSON file is loaded as a list, reflecting its hierarchical key-value format.
 
 ```{r import html}
-books.html <- read_html("/Users/crys/Desktop/Books.html")     #read html file
-books.html                                                    #view
+books.html <- read_html("https://raw.githubusercontent.com/crystaliquezada/week7_data607/refs/heads/main/Books.html")   #read html file
+books.html                                                                                                              #view
 ```
 
 ```{r import xml}
-books.xml <- read_xml("/Users/crys/Desktop/Books.xml")        #read xml file
-books.xml                                                     #view
+books.xml <- "https://raw.githubusercontent.com/crystaliquezada/week7_data607/refs/heads/main/Books.xml"        
+readbooksxml <- read_xml(books.xml)                                                   #read xml file                                    
+readbooksxml                                                                          #view
 ```
 
 ```{r import json}
-books.json <- fromJSON("/Users/crys/Desktop/Books.json")      #read json file
-str(books.json)                                               #view
+json.url <- "https://raw.githubusercontent.com/crystaliquezada/week7_data607/refs/heads/main/Books.json"  #read json file
+json.url                                                      #view
 ```
 
 Transforming each file into a data frame is another challenge. Due to the unique structure, each data frame needs a different approach.
@@ -46,7 +47,7 @@ print(books_df)
 ```
 
 ```{r convert xml to data frame}
-xml_df <- xml_find_all(books.xml, ".//Sheet1/*")
+xml_df <- xml_find_all(readbooksxml, ".//Sheet1/*")
 xml_df_nested <- data.frame(
   Book = sapply(xml_df, function(x) xml_name(x)),
   Author = xml_attr(xml_df, "Author"),
@@ -58,14 +59,10 @@ print(xml_df_nested)
 ```
 
 ```{r convert json to data frame}
-json_df <- books.json$Sheet1
-json_df_nested <- data.frame(
-  Author = sapply(json_df, function(x) x$Author),
-  Chapters = sapply(json_df, function(x) x$Chapters),
-  Pages = sapply(json_df, function(x) x$Pages),
-  stringsAsFactors = FALSE
-)
-print(json_df_nested)
+books_json <- fromJSON(json.url)
+books_df <- as.data.frame(do.call(rbind, lapply(books_json$Sheet1, as.data.frame)))
+colnames(books_df) <- c("Author", "Chapters", "Pages")
+print(books_df)
 ```
 
 

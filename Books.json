@@ -1,0 +1,19 @@
+{
+  "Sheet1": {
+    "Harry Potter and the Philosopher's Stone": {
+      "Author": "J.K Rowling",
+      "Chapters": 17,
+      "Pages": 309
+    },
+    "Sula": {
+      "Author": "Toni Morrison",
+      "Chapters": 11,
+      "Pages": 192
+    },
+    "The Stranger": {
+      "Author": "Albert Camus",
+      "Chapters": 11,
+      "Pages": 123
+    }
+  }
+}

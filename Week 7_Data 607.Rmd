@@ -1,0 +1,71 @@
+---
+title: "Week 7 Data 607"
+author: "Crystal Quezada"
+date: "2024-10-12"
+output: html_document
+---
+
+Several libraries needed to be installed before importing the HTML, XML, and JSON files. It also required a manual CRAN setup. Once installed, we were able to load the packages.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+install.packages("xml2")
+install.packages("jsonlite")
+install.packages("rvest")
+library(tidyverse)
+library(xml2)
+library(jsonlite)
+library(rvest)
+```
+
+We load each file in a similar way, but they differ in how the data is structured. The HTML file is read in multiple lines and includes tags, such as "head" and "body", similar to how content is organized on a webpage. The XML file reads more like structured data in a single line, similar to a CSV file, though it uses tags to define elements. Lastly, the JSON file is loaded as a list, reflecting its hierarchical key-value format.
+
+```{r import html}
+books.html <- read_html("/Users/crys/Desktop/Books.html")     #read html file
+books.html                                                    #view
+```
+
+```{r import xml}
+books.xml <- read_xml("/Users/crys/Desktop/Books.xml")        #read xml file
+books.xml                                                     #view
+```
+
+```{r import json}
+books.json <- fromJSON("/Users/crys/Desktop/Books.json")      #read json file
+str(books.json)                                               #view
+```
+
+Transforming each file into a data frame is another challenge. Due to the unique structure, each data frame needs a different approach.
+
+```{r convert html to data frame}
+books_df <- books.html %>% 
+  html_table(fill = TRUE) %>% 
+  .[[1]]
+print(books_df)
+```
+
+```{r convert xml to data frame}
+xml_df <- xml_find_all(books.xml, ".//Sheet1/*")
+xml_df_nested <- data.frame(
+  Book = sapply(xml_df, function(x) xml_name(x)),
+  Author = xml_attr(xml_df, "Author"),
+  Chapters = as.numeric(xml_attr(xml_df, "Chapters")),
+  Pages = as.numeric(xml_attr(xml_df, "Pages")),
+  stringsAsFactors = FALSE
+)
+print(xml_df_nested)
+```
+
+```{r convert json to data frame}
+json_df <- books.json$Sheet1
+json_df_nested <- data.frame(
+  Author = sapply(json_df, function(x) x$Author),
+  Chapters = sapply(json_df, function(x) x$Chapters),
+  Pages = sapply(json_df, function(x) x$Pages),
+  stringsAsFactors = FALSE
+)
+print(json_df_nested)
+```
+
+
